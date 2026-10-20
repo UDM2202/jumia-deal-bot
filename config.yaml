@@ -1,0 +1,85 @@
+# Jumia deal bot settings. Edit freely; no passwords or tokens go in this file
+# (those live in secrets.yaml on your PC, or in GitHub Secrets).
+
+timezone: Africa/Lagos
+base_url: https://www.jumia.com.ng
+check_interval_seconds: 120   # how often the PC watcher scans Jumia (don't go below 60)
+request_delay_seconds: 2      # pause between page loads, to stay polite
+state_file: state.json
+
+# ---------------------------------------------------------------------------
+# Things to watch. You get a Telegram message when a product matches ALL the
+# rules, and again if its price drops further.
+#   include:      words that must be in the product name
+#   exclude:      words that must NOT be in the name (filters out accessories)
+#   max_price:    alert only at or below this price (naira)
+#   min_price:    ignore anything cheaper (filters out cases/fakes)
+#   min_discount: alert only at this % off or more
+# ---------------------------------------------------------------------------
+watches:
+  - name: iPhone deal
+    query: apple iphone
+    include: [iphone]
+    exclude: &accessories [case, cover, protector, glass, charger, cable, adapter, pouch, holder, skin, lens, airpods, strap]
+    min_price: 150000
+    max_price: 900000
+    min_discount: 30
+    pages: 2
+
+  - name: Samsung deal
+    query: samsung galaxy phone
+    include: [samsung]
+    exclude: *accessories
+    min_price: 80000
+    max_price: 600000
+    min_discount: 30
+    pages: 2
+
+  - name: Laptop deal
+    query: laptop
+    include: [laptop]
+    exclude: [bag, sleeve, stand, sticker, keyboard cover, charger, adapter, battery, cooling pad, skin]
+    min_price: 150000
+    max_price: 900000
+    min_discount: 30
+    pages: 2
+
+  - name: Kitchen & home wares deal
+    query: kitchen ware
+    min_discount: 60
+    pages: 1
+
+# Scan Jumia's flash-sale page and alert on items with these words in the name.
+flash_sales:
+  enabled: true
+  path: /flash-sales/
+  pages: 3
+  keywords: [iphone, samsung, galaxy, laptop, hp, dell, lenovo, macbook, ware, pot, blender]
+  min_discount: 40
+
+# ---------------------------------------------------------------------------
+# Sale reminders. These times are from Jumia's 2025 Black Friday schedule.
+# Update them when Jumia announces the 2026 schedule (late October).
+# ---------------------------------------------------------------------------
+reminders:
+  enabled: true
+  active_from: 2026-10-30
+  active_until: 2026-11-30
+  minutes_before: [5, 1]
+  schedule:
+    - label: Jumia flash sale
+      days: [mon, tue, wed, thu, fri]
+      times: ["10:00", "14:00", "16:00", "18:00"]
+      url: https://www.jumia.com.ng/flash-sales/
+    - label: Jumia flash sale
+      days: [sat]
+      times: ["12:00", "16:00"]
+      url: https://www.jumia.com.ng/flash-sales/
+    - label: Jumia flash sale
+      days: [sun]
+      times: ["14:00"]
+      url: https://www.jumia.com.ng/flash-sales/
+    - label: Jumia treasure hunt (open the APP)
+      days: [fri]
+      times: ["08:00", "12:00"]
+      note: Search the hidden items in the Jumia app; they go for up to 99% off.

@@ -1,0 +1,6 @@
+secrets.yaml
+state.json
+browser-profile/
+.venv/
+__pycache__/
+.pytest_cache/
