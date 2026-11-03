@@ -81,3 +81,25 @@ def test_check_deals_alerts_once_then_on_price_drop(tmp_path, monkeypatch):
     assert check_deals(cfg, state, tg) == 0
     html["v"] = FIXTURE.replace("₦ 1,050,000", "₦ 990,000")
     assert check_deals(cfg, state, tg) == 1
+
+
+def test_dated_midnight_event_reminds_the_night_before():
+    cfg = {
+        "timezone": "Africa/Lagos",
+        "reminders": {
+            "active_from": "2026-10-30",
+            "active_until": "2026-11-30",
+            "minutes_before": [5],
+            "schedule": [{"label": "Explosion", "dates": ["2026-11-06"], "times": ["00:00"]}],
+        },
+    }
+    assert [r for r, _ in due_reminders(cfg, datetime(2026, 11, 5, 23, 56, tzinfo=TZ))] == ["2026-11-06|Explosion|00:00|5"]
+    assert list(due_reminders(cfg, datetime(2026, 11, 12, 23, 56, tzinfo=TZ))) == []  # not a listed date
+
+
+def test_shipped_config_loads_and_has_7pm_reminder():
+    from jumiabot.config import load_config
+
+    cfg = load_config()
+    msgs = [m for _, m in due_reminders(cfg, datetime(2026, 11, 4, 18, 55, tzinfo=TZ))]
+    assert any("Grab it" in m for m in msgs)

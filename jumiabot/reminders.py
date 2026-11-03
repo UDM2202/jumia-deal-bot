@@ -16,35 +16,38 @@ def due_reminders(cfg, now=None):
     today = now.date()
 
     start, end = rcfg.get("active_from"), rcfg.get("active_until")
-    if start and today < date.fromisoformat(str(start)):
-        return
-    if end and today > date.fromisoformat(str(end)):
-        return
+    start = date.fromisoformat(str(start)) if start else None
+    end = date.fromisoformat(str(end)) if end else None
 
     # How late a reminder may still go out (covers GitHub Actions delays / PC sleep).
     grace = timedelta(minutes=rcfg.get("grace_minutes", 4))
-    weekday = DAYS[today.weekday()]
 
-    for event in rcfg.get("schedule", []):
-        days = [d.lower()[:3] for d in event.get("days", DAYS)]
-        if weekday not in days:
+    # Check tomorrow too, so a midnight event gets its reminder late the night before.
+    for day in (today, today + timedelta(days=1)):
+        if (start and day < start) or (end and day > end):
             continue
-        for t in event["times"]:
-            hh, mm = map(int, str(t).split(":"))
-            start_at = datetime.combine(today, datetime.min.time(), tz).replace(hour=hh, minute=mm)
-            for before in rcfg.get("minutes_before", [5]):
-                send_at = start_at - timedelta(minutes=before)
-                if send_at <= now < min(send_at + grace, start_at):
-                    rid = f"{today}|{event['label']}|{t}|{before}"
-                    msg = (
-                        f"⏰ <b>{html.escape(event['label'])}</b> starts in {before} min "
-                        f"({start_at:%H:%M})\n"
-                    )
-                    if event.get("note"):
-                        msg += html.escape(event["note"]) + "\n"
-                    if event.get("url"):
-                        msg += event["url"]
-                    yield rid, msg
+        for event in rcfg.get("schedule", []):
+            if "dates" in event:
+                if day.isoformat() not in [str(d) for d in event["dates"]]:
+                    continue
+            elif DAYS[day.weekday()] not in [d.lower()[:3] for d in event.get("days", DAYS)]:
+                continue
+            for t in event["times"]:
+                hh, mm = map(int, str(t).split(":"))
+                start_at = datetime.combine(day, datetime.min.time(), tz).replace(hour=hh, minute=mm)
+                for before in rcfg.get("minutes_before", [5]):
+                    send_at = start_at - timedelta(minutes=before)
+                    if send_at <= now < min(send_at + grace, start_at):
+                        rid = f"{day}|{event['label']}|{t}|{before}"
+                        msg = (
+                            f"⏰ <b>{html.escape(event['label'])}</b> starts in {before} min "
+                            f"({start_at:%a %d %b, %H:%M})\n"
+                        )
+                        if event.get("note"):
+                            msg += html.escape(event["note"]) + "\n"
+                        if event.get("url"):
+                            msg += event["url"]
+                        yield rid, msg
 
 
 def send_reminders(cfg, state, telegram, now=None):

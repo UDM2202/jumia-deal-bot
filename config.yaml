@@ -58,8 +58,11 @@ flash_sales:
   min_discount: 40
 
 # ---------------------------------------------------------------------------
-# Sale reminders. These times are from Jumia's 2025 Black Friday schedule.
-# Update them when Jumia announces the 2026 schedule (late October).
+# Sale reminders for Jumia Black Friday 2026 ("No Manage Am", Oct 30 - Nov 30).
+# Confirmed in the press: the daily 7pm "Grab it" challenge, Explosion Friday
+# deals from midnight, and the 11.11 freebie hunt (8am-6pm).
+# The other flash-sale times are from 2025; check the Jumia app and edit them.
+#   days:  repeat weekly on these days   |   dates: only on these exact dates
 # ---------------------------------------------------------------------------
 reminders:
   enabled: true
@@ -67,19 +70,27 @@ reminders:
   active_until: 2026-11-30
   minutes_before: [5, 1]
   schedule:
-    - label: Jumia flash sale
+    - label: Jumia "Grab it" challenge (10 premium items, first to check out wins)
+      times: ["19:00"]
+      url: https://www.jumia.com.ng/
+      note: First person to complete checkout gets each item. Be logged in with your address saved.
+    - label: Jumia Explosion Friday (deals go live at midnight)
+      dates: [2026-11-06, 2026-11-13, 2026-11-20, 2026-11-27]
+      times: ["00:00"]
+      url: https://www.jumia.com.ng/
+    - label: Jumia 11.11 hidden freebies (8am-6pm)
+      dates: [2026-11-11]
+      times: ["08:00"]
+      url: https://www.jumia.com.ng/
+    - label: Jumia flash sale (2025 time, unconfirmed)
       days: [mon, tue, wed, thu, fri]
       times: ["10:00", "14:00", "16:00", "18:00"]
       url: https://www.jumia.com.ng/flash-sales/
-    - label: Jumia flash sale
+    - label: Jumia flash sale (2025 time, unconfirmed)
       days: [sat]
       times: ["12:00", "16:00"]
       url: https://www.jumia.com.ng/flash-sales/
-    - label: Jumia flash sale
+    - label: Jumia flash sale (2025 time, unconfirmed)
       days: [sun]
       times: ["14:00"]
       url: https://www.jumia.com.ng/flash-sales/
-    - label: Jumia treasure hunt (open the APP)
-      days: [fri]
-      times: ["08:00", "12:00"]
-      note: Search the hidden items in the Jumia app; they go for up to 99% off.
